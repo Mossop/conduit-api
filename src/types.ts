@@ -47,6 +47,7 @@ export type PaginatedApiMethod<R, A> = ApiMethod<PaginatedResult<R>, PaginatedRe
 export interface Conduit {
   user: User;
   differential: Differential;
+  project: Project;
 
   [K: string]: GenericAPI;
 }
@@ -80,10 +81,6 @@ export interface Differential$Revision$Search$Params {
   queryKey?: string;
   constraints?: Differential$Revision$Search$Constraints;
   attachments?: Differential$Revision$Search$Attachments;
-  order?: string | string[];
-  before?: string | null;
-  after?: string | null;
-  limit?: number;
 }
 
 export interface Differential$Revision$Search$Constraints {
@@ -160,6 +157,89 @@ export interface Differential$Revision$Search$Result {
         reviewerPHID: string;
         voidedPHID: string | null;
         diffPHID: string | null;
+      }[];
+    };
+  };
+}
+
+export type Project = GenericAPI & {
+  search: PaginatedApiMethod<
+    Project$Search$Result,
+    Project$Search$Params
+  >;
+};
+
+export interface Project$Search$Params {
+  queryKey?: string;
+  constraints?: Project$Search$Params$Constraints;
+  attachments?: Project$Search$Params$Attachments;
+}
+
+export interface Project$Search$Params$Constraints {
+  ids?: number[];
+  phids?: string[];
+  name?: string; // @deprecated
+  slugs?: string[];
+  members?: string[];
+  watchers?: string[];
+  isMilestone?: boolean;
+  isRoot?: boolean;
+  minDepth?: number;
+  maxDepth?: number;
+  subtypes?: string[];
+  icons?: string[];
+  colors?: string[];
+  parents?: string[];
+  ancestors?: string;
+  query?: string;
+}
+
+export interface Project$Search$Params$Attachments {
+  members?: boolean;
+  watchers?: boolean;
+  ancestors?: boolean;
+}
+
+export interface Project$Search$Result {
+  id: number;
+  type: "PROJ";
+  phid: string;
+  fields: {
+    name: string;
+    slug: string;
+    subtype: string;
+    milestone: number | null;
+    depth: number;
+    parent: Record<string, string> | null;
+    icon: {
+      key: string;
+      name: string;
+      icon: string;
+    };
+    color: {
+      key: string;
+      name: string;
+    };
+    spacePHID: string;
+    dateCreated: number;
+    dateModified: number;
+    policy: Record<string, string>;
+    description: string;
+  };
+  attachments: {
+    members?: {
+      members: {
+        phid: string;
+      }[];
+    };
+    watchers?: {
+      watchers: {
+        phid: string;
+      }[];
+    };
+    ancestors?: {
+      ancestors: {
+        phid: string;
       }[];
     };
   };
